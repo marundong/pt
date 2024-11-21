@@ -1,7 +1,7 @@
-package com.mrd.pt.system.service;
+package com.mrd.pt.auth.service;
 
-import com.mrd.pt.system.entity.AuthUser;
-import com.mrd.pt.system.repository.UserRepository;
+import com.mrd.pt.auth.entity.AuthPtUser;
+import com.mrd.pt.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,9 +17,9 @@ public class JpaUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AuthUser user = userRepository
+        AuthPtUser user = userRepository
                 .findByUsername(username)
-                .map(AuthUser::new)
+                .map(AuthPtUser::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User name not found: " + username));
 
         return user;

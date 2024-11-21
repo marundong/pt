@@ -23,7 +23,6 @@ public class AuthenticationEvents {
         AuthenticationException exception = failures.getException();
         log.error("auth failure:{}", exception.getMessage());
         log.warn("auth failure error exception info:", exception);
-        throw new BizException(SysResultCode.AUTH_FAILED, exception.getMessage());
     }
 
 //    @EventListener

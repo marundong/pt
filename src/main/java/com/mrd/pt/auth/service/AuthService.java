@@ -1,6 +1,7 @@
-package com.mrd.pt.system.service;
+package com.mrd.pt.auth.service;
 
-import com.mrd.pt.system.repository.UserRepository;
+import com.mrd.pt.auth.repository.UserRepository;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,11 @@ import java.util.stream.Collectors;
 public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
-    @Autowired
+    @Resource
     private JwtEncoder jwtEncoder;
-    @Autowired
+    @Resource
     private PasswordEncoder passwordEncoder;
-    @Autowired
+    @Resource
     private UserRepository userRepository;
 
 

@@ -1,7 +1,8 @@
-package com.mrd.pt.system.controller;
+package com.mrd.pt.auth.controller;
 
-import com.mrd.pt.system.entity.AuthUser;
-import com.mrd.pt.system.service.AuthService;
+import com.mrd.pt.auth.dto.AuthDTO;
+import com.mrd.pt.auth.entity.AuthPtUser;
+import com.mrd.pt.auth.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @Validated
 public class AuthController {
 
@@ -37,7 +38,7 @@ public class AuthController {
                                 userLogin.password()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        AuthUser userDetails = (AuthUser) authentication.getPrincipal();
+        AuthPtUser userDetails = (AuthPtUser) authentication.getPrincipal();
 
 
         log.info("Token requested for user :{}", authentication.getAuthorities());

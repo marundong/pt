@@ -1,4 +1,4 @@
-package com.mrd.pt.system.controller;
+package com.mrd.pt.auth.dto;
 
 public class AuthDTO {
     public record LoginRequest(String username, String password) {
