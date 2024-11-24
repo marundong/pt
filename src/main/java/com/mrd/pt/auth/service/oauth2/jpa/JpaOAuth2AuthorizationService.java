@@ -1,8 +1,13 @@
 package com.mrd.pt.auth.service.oauth2.jpa;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mrd.pt.auth.entity.AuthPtUser;
+import com.mrd.pt.auth.entity.AuthPtUserMixin;
+import com.mrd.pt.auth.entity.PtUser;
+import com.mrd.pt.auth.entity.PtUserMixin;
 import com.mrd.pt.auth.entity.oauth2.jpa.Authorization;
 import com.mrd.pt.auth.repository.oauth2.jpa.AuthorizationRepository;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -49,6 +54,9 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 		List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
 		this.objectMapper.registerModules(securityModules);
 		this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+		this.objectMapper.addMixIn(AuthPtUser.class, AuthPtUserMixin.class);
+		this.objectMapper.addMixIn(PtUser.class, PtUserMixin.class);
+//		this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	}
 
 	@Override

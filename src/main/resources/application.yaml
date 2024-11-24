@@ -33,6 +33,15 @@ spring:
         format_sql: true
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
 rsa:
   private-key: classpath:certs/private_key_pkcs8.pem
   public-key: classpath:certs/public_key.pem
+logging:
+  level:
+    org:
+      springframework:
+        security: debug

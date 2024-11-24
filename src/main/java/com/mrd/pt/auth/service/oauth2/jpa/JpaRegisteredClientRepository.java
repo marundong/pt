@@ -1,9 +1,10 @@
-package com.mrd.pt.auth.repository.oauth2.jpa;
+package com.mrd.pt.auth.service.oauth2.jpa;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mrd.pt.auth.entity.oauth2.jpa.Client;
+import com.mrd.pt.auth.repository.oauth2.jpa.ClientRepository;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class JpaRegisteredClientRepository implements RegisteredClientRepository {

@@ -1,8 +1,9 @@
-package com.mrd.pt.auth.repository.oauth2.redis;
+package com.mrd.pt.auth.service.oauth2.redis;
 
 
 import com.mrd.pt.auth.entity.oauth2.redis.OAuth2RegisteredClient;
-import com.mrd.pt.auth.repository.oauth2.mapper.Oauth2StructMapper;
+import com.mrd.pt.auth.mapper.ModelMapper;
+import com.mrd.pt.auth.repository.oauth2.redis.OAuth2RegisteredClientRepository;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -20,7 +21,7 @@ public class RedisRegisteredClientRepository implements RegisteredClientReposito
 	@Override
 	public void save(RegisteredClient registeredClient) {
 		Assert.notNull(registeredClient, "registeredClient cannot be null");
-		OAuth2RegisteredClient oauth2RegisteredClient = Oauth2StructMapper.INSTANCE.convertOAuth2RegisteredClient(registeredClient);
+		OAuth2RegisteredClient oauth2RegisteredClient = ModelMapper.convertOAuth2RegisteredClient(registeredClient);
 		this.registeredClientRepository.save(oauth2RegisteredClient);
 	}
 
@@ -28,7 +29,7 @@ public class RedisRegisteredClientRepository implements RegisteredClientReposito
 	@Override
 	public RegisteredClient findById(String id) {
 		Assert.hasText(id, "id cannot be empty");
-		return this.registeredClientRepository.findById(id).map(a->Oauth2StructMapper.INSTANCE.convertRegisteredClient(a)).orElse(null);
+		return this.registeredClientRepository.findById(id).map(ModelMapper::convertRegisteredClient).orElse(null);
 	}
 
 	@Nullable
@@ -36,7 +37,7 @@ public class RedisRegisteredClientRepository implements RegisteredClientReposito
 	public RegisteredClient findByClientId(String clientId) {
 		Assert.hasText(clientId, "clientId cannot be empty");
 		OAuth2RegisteredClient oauth2RegisteredClient = this.registeredClientRepository.findByClientId(clientId);
-		return oauth2RegisteredClient != null ? Oauth2StructMapper.INSTANCE.convertRegisteredClient(oauth2RegisteredClient) : null;
+		return oauth2RegisteredClient != null ? ModelMapper.convertRegisteredClient(oauth2RegisteredClient) : null;
 	}
 
 }
