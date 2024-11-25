@@ -37,31 +37,26 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
-//    @Autowired
-//    private AuthenticationManager authenticationManager;
+    @Resource
+    private AuthenticationManager authenticationManager;
 
     @Resource
     private RegisteredClientRepository registeredClientRepository;
 
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest userLogin) throws IllegalAccessException {
-//        Authentication authentication =
-//                authenticationManager
-//                        .authenticate(new UsernamePasswordAuthenticationToken(
-//                                userLogin.username(),
-//                                userLogin.password()));
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        AuthPtUser userDetails = (AuthPtUser) authentication.getPrincipal();
-//
-//
-//        log.info("Token requested for user :{}", authentication.getAuthorities());
-//        String token = authService.generateToken(authentication);
-//
-//        AuthDTO.Response response = new AuthDTO.Response("User logged in successfully", token);
-//
-//        return ResponseEntity.ok(response);
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest userLogin) throws IllegalAccessException {
+        Authentication authentication =
+                authenticationManager
+                        .authenticate(new UsernamePasswordAuthenticationToken(
+                                userLogin.username(),
+                                userLogin.password()));
+        log.info("Token requested for user :{}", authentication.getAuthorities());
+        String token = authService.generateToken(authentication);
+
+        AuthDTO.Response response = new AuthDTO.Response("User logged in successfully", token);
+
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("initClient")
     public void initClient(){
@@ -74,7 +69,7 @@ public class AuthController {
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                         .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                        .redirectUri("https://www.baidu.com")
+                        .redirectUri("http://127.0.0.1:8080/test/test")
                         .scope(OidcScopes.OPENID)
                         .scope(OidcScopes.PROFILE)
                         .scope("message.read")
