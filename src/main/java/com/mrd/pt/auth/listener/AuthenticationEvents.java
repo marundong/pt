@@ -1,7 +1,5 @@
 package com.mrd.pt.auth.listener;
 
-import com.mrd.pt.common.code.SysResultCode;
-import com.mrd.pt.common.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
@@ -15,6 +13,7 @@ public class AuthenticationEvents {
     @EventListener
     public void onSuccess(AuthenticationSuccessEvent success) {
         // ...
+        log.error("auth failure:{}", success.getAuthentication());
     }
 
     @EventListener

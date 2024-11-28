@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mrd.pt.auth.entity.oauth2.jpa.Client;
 import com.mrd.pt.auth.repository.oauth2.jpa.ClientRepository;
+import com.mrd.pt.auth.service.oauth2.redis.RedisRegisteredClientRepository;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -21,16 +22,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class JpaRegisteredClientRepository implements RegisteredClientRepository {
 	private final ClientRepository clientRepository;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	public JpaRegisteredClientRepository(ClientRepository clientRepository) {
+	private final RedisRegisteredClientRepository redisRegisteredClientRepository;
+
+	public JpaRegisteredClientRepository(ClientRepository clientRepository, RedisRegisteredClientRepository redisRegisteredClientRepository) {
 		Assert.notNull(clientRepository, "clientRepository cannot be null");
 		this.clientRepository = clientRepository;
+		this.redisRegisteredClientRepository = redisRegisteredClientRepository;
 
 		ClassLoader classLoader = JpaRegisteredClientRepository.class.getClassLoader();
 		List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
@@ -41,20 +44,39 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
 	@Override
 	public void save(RegisteredClient registeredClient) {
 		Assert.notNull(registeredClient, "registeredClient cannot be null");
-		this.clientRepository.save(toEntity(registeredClient));
+		Client save = this.clientRepository.save(toEntity(registeredClient));
+		RegisteredClient registeredClientSaved = toObject(save);
+		save2redis(registeredClientSaved);
 	}
 
 	@Override
 	public RegisteredClient findById(String id) {
 		Assert.hasText(id, "id cannot be empty");
-		return this.clientRepository.findById(id).map(this::toObject).orElse(null);
+		RegisteredClient registeredClient = redisRegisteredClientRepository.findById(id);
+		if (registeredClient == null) {
+			registeredClient = this.clientRepository.findById(id).map(this::toObject).orElse(null);
+			save2redis(registeredClient);
+		}
+		return registeredClient;
 	}
 
 	@Override
 	public RegisteredClient findByClientId(String clientId) {
 		Assert.hasText(clientId, "clientId cannot be empty");
-		return this.clientRepository.findByClientId(clientId).map(this::toObject).orElse(null);
+		RegisteredClient registeredClient = redisRegisteredClientRepository.findByClientId(clientId);
+		if (registeredClient == null) {
+			registeredClient = this.clientRepository.findByClientId(clientId).map(this::toObject).orElse(null);
+			save2redis(registeredClient);
+		}
+		return registeredClient;
 	}
+
+	private void save2redis(RegisteredClient registeredClient) {
+		if (registeredClient != null) {
+			redisRegisteredClientRepository.save(registeredClient);
+		}
+	}
+
 
 	private RegisteredClient toObject(Client client) {
 		Set<String> clientAuthenticationMethods = StringUtils.commaDelimitedListToSet(

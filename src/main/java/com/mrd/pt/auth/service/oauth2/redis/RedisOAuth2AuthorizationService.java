@@ -12,8 +12,10 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+@Component
 public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
 	private final RegisteredClientRepository registeredClientRepository;

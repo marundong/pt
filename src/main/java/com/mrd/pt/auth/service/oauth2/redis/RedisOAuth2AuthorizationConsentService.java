@@ -7,8 +7,10 @@ import com.mrd.pt.auth.repository.oauth2.redis.OAuth2UserConsentRepository;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+@Component
 public class RedisOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {
 
     private final OAuth2UserConsentRepository userConsentRepository;

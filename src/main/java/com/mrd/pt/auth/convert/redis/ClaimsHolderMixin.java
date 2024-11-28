@@ -1,4 +1,4 @@
-package com.mrd.pt.auth.convert;
+package com.mrd.pt.auth.convert.redis;
 
 import java.util.Map;
 

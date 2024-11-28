@@ -1,7 +1,11 @@
-package com.mrd.pt.auth.convert;
+package com.mrd.pt.auth.convert.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.mrd.pt.auth.entity.AuthPtUser;
+import com.mrd.pt.auth.entity.AuthPtUserMixin;
+import com.mrd.pt.auth.entity.PtUser;
+import com.mrd.pt.auth.entity.PtUserMixin;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -18,6 +22,8 @@ public class OAuth2AuthorizationRequestToBytesConverter implements Converter<OAu
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModules(
 				SecurityJackson2Modules.getModules(OAuth2AuthorizationRequestToBytesConverter.class.getClassLoader()));
+		objectMapper.addMixIn(AuthPtUser.class, AuthPtUserMixin.class);
+		objectMapper.addMixIn(PtUser.class, PtUserMixin.class);
 		objectMapper.registerModules(new OAuth2AuthorizationServerJackson2Module());
 		this.serializer = new Jackson2JsonRedisSerializer<>(objectMapper, OAuth2AuthorizationRequest.class);
 	}

@@ -1,7 +1,6 @@
 package com.mrd.pt.auth.service.oauth2.jpa;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mrd.pt.auth.entity.AuthPtUser;
@@ -10,6 +9,7 @@ import com.mrd.pt.auth.entity.PtUser;
 import com.mrd.pt.auth.entity.PtUserMixin;
 import com.mrd.pt.auth.entity.oauth2.jpa.Authorization;
 import com.mrd.pt.auth.repository.oauth2.jpa.AuthorizationRepository;
+import com.mrd.pt.auth.service.oauth2.redis.RedisOAuth2AuthorizationService;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -41,14 +41,17 @@ import java.util.function.Consumer;
 @Component
 public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService {
 	private final AuthorizationRepository authorizationRepository;
-	private final RegisteredClientRepository registeredClientRepository;
+	private final RegisteredClientRepository jpaRegisteredClientRepository;
+
+	private final RedisOAuth2AuthorizationService redisOAuth2AuthorizationService;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	public JpaOAuth2AuthorizationService(AuthorizationRepository authorizationRepository, RegisteredClientRepository registeredClientRepository) {
+	public JpaOAuth2AuthorizationService(AuthorizationRepository authorizationRepository, RegisteredClientRepository jpaRegisteredClientRepository,RedisOAuth2AuthorizationService redisOAuth2AuthorizationService) {
 		Assert.notNull(authorizationRepository, "authorizationRepository cannot be null");
-		Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
+		Assert.notNull(jpaRegisteredClientRepository, "registeredClientRepository cannot be null");
 		this.authorizationRepository = authorizationRepository;
-		this.registeredClientRepository = registeredClientRepository;
+		this.jpaRegisteredClientRepository = jpaRegisteredClientRepository;
+		this.redisOAuth2AuthorizationService = redisOAuth2AuthorizationService;
 
 		ClassLoader classLoader = JpaOAuth2AuthorizationService.class.getClassLoader();
 		List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
@@ -62,24 +65,39 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 	@Override
 	public void save(OAuth2Authorization authorization) {
 		Assert.notNull(authorization, "authorization cannot be null");
-		this.authorizationRepository.save(toEntity(authorization));
+		Authorization save = this.authorizationRepository.save(toEntity(authorization));
+		redisOAuth2AuthorizationService.save(toObject(save));
 	}
 
 	@Override
 	public void remove(OAuth2Authorization authorization) {
 		Assert.notNull(authorization, "authorization cannot be null");
+		redisOAuth2AuthorizationService.remove(authorization);
 		this.authorizationRepository.deleteById(authorization.getId());
 	}
 
 	@Override
 	public OAuth2Authorization findById(String id) {
 		Assert.hasText(id, "id cannot be empty");
-		return this.authorizationRepository.findById(id).map(this::toObject).orElse(null);
+		OAuth2Authorization oAuth2Authorization = redisOAuth2AuthorizationService.findById(id);
+		if(oAuth2Authorization==null){
+			oAuth2Authorization =this.authorizationRepository.findById(id).map(this::toObject).orElse(null);;
+			if(oAuth2Authorization!=null){
+				redisOAuth2AuthorizationService.save(oAuth2Authorization);
+			}
+		}
+		return oAuth2Authorization;
 	}
 
 	@Override
 	public OAuth2Authorization findByToken(String token, OAuth2TokenType tokenType) {
 		Assert.hasText(token, "token cannot be empty");
+
+		OAuth2Authorization oAuth2Authorization = redisOAuth2AuthorizationService.findByToken(token, tokenType);
+
+		if(oAuth2Authorization!=null){
+			return oAuth2Authorization;
+		}
 
 		Optional<Authorization> result;
 		if (tokenType == null) {
@@ -102,11 +120,13 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 			result = Optional.empty();
 		}
 
-		return result.map(this::toObject).orElse(null);
+		oAuth2Authorization = result.map(this::toObject).orElse(null);
+		redisOAuth2AuthorizationService.save(oAuth2Authorization);
+		return oAuth2Authorization;
 	}
 
 	private OAuth2Authorization toObject(Authorization entity) {
-		RegisteredClient registeredClient = this.registeredClientRepository.findById(entity.getRegisteredClientId());
+		RegisteredClient registeredClient = this.jpaRegisteredClientRepository.findById(entity.getRegisteredClientId());
 		if (registeredClient == null) {
 			throw new DataRetrievalFailureException(
 					"The RegisteredClient with id '" + entity.getRegisteredClientId() + "' was not found in the RegisteredClientRepository.");
