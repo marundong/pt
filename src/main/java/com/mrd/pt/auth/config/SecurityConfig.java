@@ -1,5 +1,6 @@
 package com.mrd.pt.auth.config;
 
+import com.mrd.pt.auth.handler.PtOauth2ErrorAuthenticationFailureHandler;
 import com.mrd.pt.auth.service.JpaUserDetailsService;
 import com.mrd.pt.auth.service.oauth2.jpa.JpaOAuth2AuthorizationConsentService;
 import com.mrd.pt.auth.service.oauth2.jpa.JpaOAuth2AuthorizationService;
@@ -53,6 +54,9 @@ public class SecurityConfig {
     @Resource
     private JpaOAuth2AuthorizationConsentService jpaOAuth2AuthorizationConsentService;
 
+    @Resource
+    private PtOauth2ErrorAuthenticationFailureHandler ptOauth2ErrorAuthenticationFailureHandler;
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -61,6 +65,7 @@ public class SecurityConfig {
                 .registeredClientRepository(jpaRegisteredClientRepository)
                 .authorizationService(jpaOAuth2AuthorizationService)
                 .authorizationConsentService(jpaOAuth2AuthorizationConsentService)
+                .tokenEndpoint(tokenConfig->tokenConfig.errorResponseHandler(ptOauth2ErrorAuthenticationFailureHandler))
                 .oidc(Customizer.withDefaults());
         return http
                 .securityMatcher(http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).getEndpointsMatcher())

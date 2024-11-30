@@ -1,6 +1,7 @@
 package com.mrd.pt.common.code;
 
 import lombok.ToString;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 
 /**
  * @author marundong
@@ -8,7 +9,8 @@ import lombok.ToString;
 @ToString
 public enum SysResultCode implements ResultCode {
     SUCCESS(true, "0", "操作成功"),
-    AUTH_FAILED(false, "10001", "授权失败"),
+
+
     ERROR(false, "99999", "系统异常");
 
     private final boolean success;
