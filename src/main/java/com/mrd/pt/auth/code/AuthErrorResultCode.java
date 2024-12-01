@@ -1,5 +1,6 @@
-package com.mrd.pt.common.code;
+package com.mrd.pt.auth.code;
 
+import com.mrd.pt.common.code.ResultCode;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 
 /**
@@ -24,6 +25,7 @@ public enum AuthErrorResultCode implements ResultCode {
     AUTH_FAILED_UNSUPPORTED_GRANT_TYPE(false, "10011", OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE, OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE),
     AUTH_FAILED_UNSUPPORTED_TOKEN_TYPE(false, "10012", OAuth2ErrorCodes.UNSUPPORTED_TOKEN_TYPE, OAuth2ErrorCodes.UNSUPPORTED_TOKEN_TYPE),
     AUTH_FAILED_INVALID_REDIRECT_URI(false, "10013", OAuth2ErrorCodes.INVALID_REDIRECT_URI, OAuth2ErrorCodes.INVALID_REDIRECT_URI),
+    AUTH_FAILED_INVALID_USERNAME_PASSWORD(false, "10014", "invalid username or password", "invalid username or password"),
     ;
     private final boolean success;
 
@@ -42,17 +44,17 @@ public enum AuthErrorResultCode implements ResultCode {
 
     @Override
     public boolean success() {
-        return false;
+        return success;
     }
 
     @Override
     public String code() {
-        return null;
+        return code;
     }
 
     @Override
     public String msg() {
-        return null;
+        return msg;
     }
 
     public String getOauth2ErrorCode() {

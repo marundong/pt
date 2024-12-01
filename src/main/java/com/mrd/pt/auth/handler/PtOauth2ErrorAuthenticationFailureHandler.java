@@ -1,9 +1,7 @@
 package com.mrd.pt.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
-import com.mrd.pt.common.code.AuthErrorResultCode;
-import com.mrd.pt.common.code.SysResultCode;
+import com.mrd.pt.auth.code.AuthErrorResultCode;
 import com.mrd.pt.common.response.JsonResponse;
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
@@ -45,13 +43,16 @@ public class PtOauth2ErrorAuthenticationFailureHandler implements Authentication
             // 处理oauth2认证失败
             OAuth2Error error = ((OAuth2AuthenticationException) exception).getError();
             log.error("oauth2 authentication failure: {}", objectMapper.writeValueAsString(error));
-            String description = error.getDescription();
+            log.error("oauth2 authentication failure detail:", exception);
             String errorCode = error.getErrorCode();
             response.setStatus(HttpStatus.BAD_REQUEST.value());
             response.setContentType("application/json");
             response.setCharacterEncoding("utf-8");
             AuthErrorResultCode authErrorResultCodeByOauth2ErrorCode = AuthErrorResultCode.getAuthErrorResultCodeByOauth2ErrorCode(errorCode);
             JsonResponse jsonResponse = new JsonResponse(authErrorResultCodeByOauth2ErrorCode);
+            if(authErrorResultCodeByOauth2ErrorCode.equals(AuthErrorResultCode.AUTH_FAILED_COMMON)){
+                jsonResponse.setMsg(errorCode);
+            }
             response.getWriter().print(objectMapper.writeValueAsString(jsonResponse));
         }
 

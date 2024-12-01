@@ -2,6 +2,7 @@ package com.mrd.pt.auth.mapper;
 
 import java.security.Principal;
 
+import com.mrd.pt.auth.authentication.PtOauth2Constant;
 import com.mrd.pt.auth.entity.oauth2.redis.OAuth2AuthorizationCodeGrantAuthorization;
 import com.mrd.pt.auth.entity.oauth2.redis.OAuth2AuthorizationGrantAuthorization;
 import com.mrd.pt.auth.entity.oauth2.redis.OAuth2ClientCredentialsGrantAuthorization;
@@ -10,6 +11,7 @@ import com.mrd.pt.auth.entity.oauth2.redis.OAuth2RegisteredClient;
 import com.mrd.pt.auth.entity.oauth2.redis.OAuth2TokenExchangeGrantAuthorization;
 import com.mrd.pt.auth.entity.oauth2.redis.OAuth2UserConsent;
 import com.mrd.pt.auth.entity.oauth2.redis.OidcAuthorizationCodeGrantAuthorization;
+import com.mrd.pt.auth.entity.oauth2.redis.PtUserAuthorizationGrantAuthorization;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2DeviceCode;
@@ -83,8 +85,20 @@ public final class ModelMapper {
 		}
 		else if (AuthorizationGrantType.TOKEN_EXCHANGE.equals(authorization.getAuthorizationGrantType())) {
 			return convertOAuth2TokenExchangeGrantAuthorization(authorization);
+		} else if (PtOauth2Constant.GRANT_TYPE_PT_USER.equals(authorization.getAuthorizationGrantType())) {
+			return convertPtUserGrantAuthorization(authorization);
+
 		}
 		return null;
+	}
+
+	private static PtUserAuthorizationGrantAuthorization convertPtUserGrantAuthorization(OAuth2Authorization authorization) {
+		OAuth2AuthorizationGrantAuthorization.AccessToken accessToken = extractAccessToken(authorization);
+		OAuth2AuthorizationGrantAuthorization.RefreshToken refreshToken = extractRefreshToken(authorization);
+		return new PtUserAuthorizationGrantAuthorization(authorization.getId(),
+				authorization.getRegisteredClientId(), authorization.getPrincipalName(),
+				authorization.getAuthorizedScopes(), accessToken, refreshToken,
+				authorization.getAttribute(Principal.class.getName()));
 	}
 
 	public static OidcAuthorizationCodeGrantAuthorization convertOidcAuthorizationCodeGrantAuthorization(
@@ -331,6 +345,20 @@ public final class ModelMapper {
 		else if (authorizationGrantAuthorization instanceof OAuth2TokenExchangeGrantAuthorization authorizationGrant) {
 			mapOAuth2TokenExchangeGrantAuthorization(authorizationGrant, builder);
 		}
+		else if (authorizationGrantAuthorization instanceof PtUserAuthorizationGrantAuthorization authorizationGrant) {
+			mapPtUserAuthorizationGrantAuthorization(authorizationGrant, builder);
+		}
+	}
+
+	private static void mapPtUserAuthorizationGrantAuthorization(PtUserAuthorizationGrantAuthorization authorizationGrant, OAuth2Authorization.Builder builder) {
+		builder.id(authorizationGrant.getId())
+				.principalName(authorizationGrant.getPrincipalName())
+				.authorizationGrantType(PtOauth2Constant.GRANT_TYPE_PT_USER)
+				.authorizedScopes(authorizationGrant.getAuthorizedScopes())
+				.attribute(Principal.class.getName(), authorizationGrant.getPrincipal());
+
+		mapAccessToken(authorizationGrant.getAccessToken(), builder);
+		mapRefreshToken(authorizationGrant.getRefreshToken(), builder);
 	}
 
 	public static void mapOidcAuthorizationCodeGrantAuthorization(

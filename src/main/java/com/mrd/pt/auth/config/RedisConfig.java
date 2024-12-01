@@ -1,11 +1,11 @@
 package com.mrd.pt.auth.config;
 
-import com.mrd.pt.auth.convert.redis.BytesToClaimsHolderConverter;
-import com.mrd.pt.auth.convert.redis.BytesToOAuth2AuthorizationRequestConverter;
-import com.mrd.pt.auth.convert.redis.BytesToUsernamePasswordAuthenticationTokenConverter;
-import com.mrd.pt.auth.convert.redis.ClaimsHolderToBytesConverter;
-import com.mrd.pt.auth.convert.redis.OAuth2AuthorizationRequestToBytesConverter;
-import com.mrd.pt.auth.convert.redis.UsernamePasswordAuthenticationTokenToBytesConverter;
+import com.mrd.pt.auth.redis.BytesToClaimsHolderConverter;
+import com.mrd.pt.auth.redis.BytesToOAuth2AuthorizationRequestConverter;
+import com.mrd.pt.auth.redis.BytesToUsernamePasswordAuthenticationTokenConverter;
+import com.mrd.pt.auth.redis.ClaimsHolderToBytesConverter;
+import com.mrd.pt.auth.redis.OAuth2AuthorizationRequestToBytesConverter;
+import com.mrd.pt.auth.redis.UsernamePasswordAuthenticationTokenToBytesConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

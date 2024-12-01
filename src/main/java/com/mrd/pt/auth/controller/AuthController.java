@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @RestController
@@ -74,7 +75,10 @@ public class AuthController {
                         .scope(OidcScopes.PROFILE)
                         .scope("message.read")
                         .scope("message.write")
-                        .tokenSettings(TokenSettings.builder().build())
+                        .tokenSettings(TokenSettings.builder()
+                                .accessTokenTimeToLive(Duration.ofHours(2))
+                                .refreshTokenTimeToLive(Duration.ofHours(24))
+                                .build())
                         .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                         .build();
 

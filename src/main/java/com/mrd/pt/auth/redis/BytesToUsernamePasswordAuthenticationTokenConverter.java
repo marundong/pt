@@ -1,4 +1,4 @@
-package com.mrd.pt.auth.convert.redis;
+package com.mrd.pt.auth.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
