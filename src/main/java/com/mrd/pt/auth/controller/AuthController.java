@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,6 +79,8 @@ public class AuthController {
                         .tokenSettings(TokenSettings.builder()
                                 .accessTokenTimeToLive(Duration.ofHours(2))
                                 .refreshTokenTimeToLive(Duration.ofHours(24))
+                                // 配置accessToken类型
+                                .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
                                 .build())
                         .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                         .build();

@@ -1,5 +1,7 @@
 package com.mrd.pt.auth.config;
 
+import com.mrd.pt.auth.authentication.PtAccessDeniedHandler;
+import com.mrd.pt.auth.authentication.PtAuthenticationEntryPoint;
 import com.mrd.pt.auth.authentication.PtUserGrantAuthenticationConvert;
 import com.mrd.pt.auth.authentication.PtUserGrantAuthenticationProvider;
 import com.mrd.pt.auth.handler.PtOauth2ErrorAuthenticationFailureHandler;
@@ -7,7 +9,6 @@ import com.mrd.pt.auth.service.JpaUserDetailsService;
 import com.mrd.pt.auth.service.oauth2.jpa.JpaOAuth2AuthorizationConsentService;
 import com.mrd.pt.auth.service.oauth2.jpa.JpaOAuth2AuthorizationService;
 import com.mrd.pt.auth.service.oauth2.jpa.JpaRegisteredClientRepository;
-import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -17,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -40,8 +40,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Acce
 import org.springframework.security.oauth2.server.authorization.token.OAuth2RefreshTokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 @Slf4j
 @Configuration
@@ -94,8 +92,12 @@ public class SecurityConfig {
                     auth.requestMatchers("/test/test").permitAll();
                     auth.anyRequest().authenticated();
                 }).oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
-                        .jwt(Customizer.withDefaults())
-                );
+                                .jwt(Customizer.withDefaults())
+//                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer.introspectionUri("http://127.0.0.1:8080/oauth2/introspect").introspectionClientCredentials("1", "1"))
+                        .authenticationEntryPoint(new PtAuthenticationEntryPoint())
+                        .accessDeniedHandler(new PtAccessDeniedHandler())
+                )
+        ;
         return http.build();
     }
 
@@ -135,5 +137,4 @@ public class SecurityConfig {
         return new DelegatingOAuth2TokenGenerator(jwtGenerator, oAuth2AccessTokenGenerator, oAuth2RefreshTokenGenerator);
 
     }
-
 }
