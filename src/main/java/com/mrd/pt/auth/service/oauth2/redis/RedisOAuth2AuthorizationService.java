@@ -2,7 +2,7 @@ package com.mrd.pt.auth.service.oauth2.redis;
 
 
 import com.mrd.pt.auth.entity.oauth2.redis.OAuth2AuthorizationGrantAuthorization;
-import com.mrd.pt.auth.mapper.ModelMapper;
+import com.mrd.pt.auth.redis.RedisOAuth2ModelMapper;
 import com.mrd.pt.auth.repository.oauth2.redis.OAuth2AuthorizationGrantAuthorizationRepository;
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -34,7 +34,7 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 	@Override
 	public void save(OAuth2Authorization authorization) {
 		Assert.notNull(authorization, "authorization cannot be null");
-		OAuth2AuthorizationGrantAuthorization authorizationGrantAuthorization = ModelMapper.convertOAuth2AuthorizationGrantAuthorization(authorization);
+		OAuth2AuthorizationGrantAuthorization authorizationGrantAuthorization = RedisOAuth2ModelMapper.convertOAuth2AuthorizationGrantAuthorization(authorization);
 		this.authorizationGrantAuthorizationRepository.save(authorizationGrantAuthorization);
 	}
 
@@ -113,7 +113,7 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 		RegisteredClient registeredClient = this.registeredClientRepository
 			.findById(authorizationGrantAuthorization.getRegisteredClientId());
 		OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(registeredClient);
-		ModelMapper.mapOAuth2AuthorizationGrantAuthorization(authorizationGrantAuthorization, builder);
+		RedisOAuth2ModelMapper.mapOAuth2AuthorizationGrantAuthorization(authorizationGrantAuthorization, builder);
 		return builder.build();
 	}
 

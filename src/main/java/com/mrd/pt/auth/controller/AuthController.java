@@ -1,17 +1,7 @@
 package com.mrd.pt.auth.controller;
 
-import com.mrd.pt.auth.dto.AuthDTO;
-import com.mrd.pt.auth.entity.AuthPtUser;
-import com.mrd.pt.auth.service.AuthService;
+import com.mrd.pt.auth.authentication.PtOauth2Constant;
 import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -22,8 +12,6 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,30 +23,9 @@ import java.util.UUID;
 @Validated
 public class AuthController {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
-
-    @Autowired
-    private AuthService authService;
-    @Resource
-    private AuthenticationManager authenticationManager;
-
     @Resource
     private RegisteredClientRepository registeredClientRepository;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthDTO.LoginRequest userLogin) throws IllegalAccessException {
-        Authentication authentication =
-                authenticationManager
-                        .authenticate(new UsernamePasswordAuthenticationToken(
-                                userLogin.username(),
-                                userLogin.password()));
-        log.info("Token requested for user :{}", authentication.getAuthorities());
-        String token = authService.generateToken(authentication);
-
-        AuthDTO.Response response = new AuthDTO.Response("User logged in successfully", token);
-
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping("initClient")
     public void initClient(){
@@ -71,6 +38,7 @@ public class AuthController {
                         .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                         .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                         .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                        .authorizationGrantType(PtOauth2Constant.GRANT_TYPE_PT_USER)
                         .redirectUri("http://127.0.0.1:8080/test/test")
                         .scope(OidcScopes.OPENID)
                         .scope(OidcScopes.PROFILE)

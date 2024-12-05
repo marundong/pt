@@ -2,6 +2,7 @@ package com.mrd.pt.auth.config;
 
 import com.mrd.pt.auth.authentication.PtAccessDeniedHandler;
 import com.mrd.pt.auth.authentication.PtAuthenticationEntryPoint;
+import com.mrd.pt.auth.authentication.PtOpaqueTokenIntrospector;
 import com.mrd.pt.auth.authentication.PtUserGrantAuthenticationConvert;
 import com.mrd.pt.auth.authentication.PtUserGrantAuthenticationProvider;
 import com.mrd.pt.auth.handler.PtOauth2ErrorAuthenticationFailureHandler;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -38,6 +40,8 @@ import org.springframework.security.oauth2.server.authorization.token.Delegating
 import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2AccessTokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2RefreshTokenGenerator;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -81,7 +85,7 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, RedisTemplate<String,Object> redisTemplate)
             throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -92,8 +96,8 @@ public class SecurityConfig {
                     auth.requestMatchers("/test/test").permitAll();
                     auth.anyRequest().authenticated();
                 }).oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
-                                .jwt(Customizer.withDefaults())
 //                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer.introspectionUri("http://127.0.0.1:8080/oauth2/introspect").introspectionClientCredentials("1", "1"))
+                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer.introspector(new PtOpaqueTokenIntrospector(redisTemplate,"http://127.0.0.1:8080/oauth2/introspect","1","1")))
                         .authenticationEntryPoint(new PtAuthenticationEntryPoint())
                         .accessDeniedHandler(new PtAccessDeniedHandler())
                 )
@@ -130,9 +134,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public OAuth2TokenGenerator<?> tokenGenerator(JWKSource<SecurityContext> jwkSource) {
+    public OAuth2TokenGenerator<?> tokenGenerator(JWKSource<SecurityContext> jwkSource,OAuth2TokenCustomizer<OAuth2TokenClaimsContext> oAuth2TokenCustomizer) {
         JwtGenerator jwtGenerator = new JwtGenerator(new NimbusJwtEncoder(jwkSource));
         OAuth2AccessTokenGenerator oAuth2AccessTokenGenerator = new OAuth2AccessTokenGenerator();
+        oAuth2AccessTokenGenerator.setAccessTokenCustomizer(oAuth2TokenCustomizer);
         OAuth2RefreshTokenGenerator oAuth2RefreshTokenGenerator = new OAuth2RefreshTokenGenerator();
         return new DelegatingOAuth2TokenGenerator(jwtGenerator, oAuth2AccessTokenGenerator, oAuth2RefreshTokenGenerator);
 

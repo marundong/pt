@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class SystemController {
 
     @GetMapping("hello")
-    public String testHello(){
+    public Object testHello(){
 
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
-        AuthPtUser principal = (AuthPtUser) authentication.getPrincipal();
-        return "hello";
+        Object principal = authentication.getPrincipal();
+        return principal;
     }
 }

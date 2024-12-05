@@ -21,7 +21,6 @@ public class JpaUserDetailsService implements UserDetailsService {
                 .findByUsername(username)
                 .map(AuthPtUser::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User name not found: " + username));
-
         return user;
 
     }

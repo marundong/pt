@@ -1,4 +1,4 @@
-package com.mrd.pt.auth.mapper;
+package com.mrd.pt.auth.redis;
 
 import java.security.Principal;
 
@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-public final class ModelMapper {
+public final class RedisOAuth2ModelMapper {
 
 	public static OAuth2RegisteredClient convertOAuth2RegisteredClient(RegisteredClient registeredClient) {
 		OAuth2RegisteredClient.ClientSettings clientSettings = new OAuth2RegisteredClient.ClientSettings(

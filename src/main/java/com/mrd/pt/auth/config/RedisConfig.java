@@ -13,6 +13,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.convert.RedisCustomConversions;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.util.Arrays;
 
@@ -26,8 +27,17 @@ public class RedisConfig {
 	}
 
 	@Bean
-	public RedisTemplate<?, ?> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+	public RedisTemplate<byte[], byte[]> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(redisConnectionFactory);
+		return redisTemplate;
+	}
+
+	@Bean
+	public RedisTemplate<String, Object> redisTemplateString(RedisConnectionFactory redisConnectionFactory){
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 		redisTemplate.setConnectionFactory(redisConnectionFactory);
 		return redisTemplate;
 	}
