@@ -10,7 +10,7 @@ public interface ResultCode {
 
     boolean success();
 
-    String code();
+    int code();
 
     String msg();
 

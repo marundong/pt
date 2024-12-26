@@ -1,5 +1,6 @@
 package com.mrd.pt.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -21,6 +22,7 @@ public class AuthPtUser extends PtUser implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public String getPassword() {
         return ptUser.getPassword();
     }

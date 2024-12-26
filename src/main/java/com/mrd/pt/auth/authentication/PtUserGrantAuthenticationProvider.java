@@ -1,6 +1,7 @@
 package com.mrd.pt.auth.authentication;
 
 import com.mrd.pt.auth.code.AuthErrorResultCode;
+import com.mrd.pt.auth.entity.AuthPtUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,7 +29,10 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
 import java.security.Principal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
@@ -47,8 +51,8 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
         PtUserGrantAuthenticationToken ptUserGrantAuthenticationToken = (PtUserGrantAuthenticationToken) authentication;
         Map<String, Object> additionalParameters = ptUserGrantAuthenticationToken.getAdditionalParameters();
         AuthorizationGrantType grantType = ptUserGrantAuthenticationToken.getGrantType();
-        String username = (String) additionalParameters.get(OAuth2ParameterNames.USERNAME);
-        String password = (String) additionalParameters.get(OAuth2ParameterNames.PASSWORD);
+        String username = ptUserGrantAuthenticationToken.getUsername();
+        String password = ptUserGrantAuthenticationToken.getPassword();
         OAuth2ClientAuthenticationToken clientAuthenticationToken = PtOAuth2AuthenticationProviderUtils.getAuthenticatedClientElseThrowInvalidClient(ptUserGrantAuthenticationToken);
         RegisteredClient registeredClient = clientAuthenticationToken.getRegisteredClient();
         if (registeredClient == null || registeredClient.getAuthorizationGrantTypes() == null || !registeredClient.getAuthorizationGrantTypes().contains(grantType)) {
@@ -59,10 +63,10 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new OAuth2AuthenticationException(AuthErrorResultCode.AUTH_FAILED_INVALID_USERNAME_PASSWORD.getOauth2ErrorCode());
         }
-
+        PtUserAuthenticationToken ptUserAuthenticationToken = new PtUserAuthenticationToken((AuthPtUser) userDetails,clientAuthenticationToken);
         DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
                 .registeredClient(registeredClient)
-                .principal(clientAuthenticationToken)
+                .principal(ptUserAuthenticationToken)
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
                 .authorizedScopes(registeredClient.getScopes())
                 .authorizationGrantType(grantType)
@@ -113,7 +117,6 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
         OAuth2Authorization oAuth2Authorization = authorizationBuilder.build();
 
         this.authorizationService.save(oAuth2Authorization);
-
 
         return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientAuthenticationToken, accessToken, refreshToken, additionalParameters);
     }

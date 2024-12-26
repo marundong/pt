@@ -8,18 +8,18 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
  */
 @ToString
 public enum SysResultCode implements ResultCode {
-    SUCCESS(true, "0", "操作成功"),
+    SUCCESS(true, 0, "操作成功"),
 
 
-    ERROR(false, "99999", "系统异常");
+    ERROR(false, 99999, "系统异常");
 
     private final boolean success;
 
-    private final String code;
+    private final int code;
 
     private final String msg;
 
-    SysResultCode(boolean success, String code, String msg) {
+    SysResultCode(boolean success, int code, String msg) {
         this.success = success;
         this.code = code;
         this.msg = msg;
@@ -31,7 +31,7 @@ public enum SysResultCode implements ResultCode {
     }
 
     @Override
-    public String code() {
+    public int code() {
         return code;
     }
 

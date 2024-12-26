@@ -5,6 +5,7 @@ import com.mrd.pt.auth.authentication.PtAuthenticationEntryPoint;
 import com.mrd.pt.auth.authentication.PtOpaqueTokenIntrospector;
 import com.mrd.pt.auth.authentication.PtUserGrantAuthenticationConvert;
 import com.mrd.pt.auth.authentication.PtUserGrantAuthenticationProvider;
+import com.mrd.pt.auth.handler.PtOauth2AuthenticationSuccessHandler;
 import com.mrd.pt.auth.handler.PtOauth2ErrorAuthenticationFailureHandler;
 import com.mrd.pt.auth.service.JpaUserDetailsService;
 import com.mrd.pt.auth.service.oauth2.jpa.JpaOAuth2AuthorizationConsentService;
@@ -59,6 +60,7 @@ public class SecurityConfig {
                                                                       JpaOAuth2AuthorizationConsentService jpaOAuth2AuthorizationConsentService,
                                                                       JpaUserDetailsService userDetailsService,
                                                                       PtOauth2ErrorAuthenticationFailureHandler ptOauth2ErrorAuthenticationFailureHandler,
+//                                                                      PtOauth2AuthenticationSuccessHandler ptOauth2AuthenticationSuccessHandler,
                                                                       OAuth2TokenGenerator<?> tokenGenerator) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
@@ -69,6 +71,7 @@ public class SecurityConfig {
                     tokenEndpointConfigurer.errorResponseHandler(ptOauth2ErrorAuthenticationFailureHandler);
                     tokenEndpointConfigurer.accessTokenRequestConverter(new PtUserGrantAuthenticationConvert());
                     tokenEndpointConfigurer.authenticationProvider(new PtUserGrantAuthenticationProvider(userDetailsService, passwordEncoder(), jpaOAuth2AuthorizationService, tokenGenerator));
+//                    tokenEndpointConfigurer.accessTokenResponseHandler(ptOauth2AuthenticationSuccessHandler);
                 })
                 .oidc(Customizer.withDefaults());
         return http
@@ -94,6 +97,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/error/**").permitAll();
                     auth.requestMatchers("/auth/**").permitAll();
                     auth.requestMatchers("/test/test").permitAll();
+                    auth.requestMatchers("/registry/**").permitAll();
                     auth.anyRequest().authenticated();
                 }).oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
 //                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer.introspectionUri("http://127.0.0.1:8080/oauth2/introspect").introspectionClientCredentials("1", "1"))

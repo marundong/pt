@@ -22,9 +22,9 @@ import lombok.NoArgsConstructor;
 public class PtUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(unique = true)
-    private String id;
+    private Long id;
 
     @Column(name = "user_name", unique = true)
     @NonNull

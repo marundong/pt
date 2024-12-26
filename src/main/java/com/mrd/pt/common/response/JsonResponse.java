@@ -11,7 +11,7 @@ import lombok.Data;
 public class JsonResponse<T> {
     private boolean success = true;
 
-    private String code;
+    private int code = 0;
 
     private String msg ;
 
@@ -37,11 +37,18 @@ public class JsonResponse<T> {
     public JsonResponse(T data) {
         this.data = data;
     }
-    public static JsonResponse success(){
+
+    public static JsonResponse success() {
         return new JsonResponse<>(SysResultCode.SUCCESS);
     }
 
-    public static JsonResponse error(){
+    public static <T> JsonResponse<T> success(T data) {
+        JsonResponse<T> jsonResponse = new JsonResponse<>(SysResultCode.SUCCESS);
+        jsonResponse.setData(data);
+        return jsonResponse;
+    }
+
+    public static JsonResponse error() {
         return new JsonResponse<>(SysResultCode.ERROR);
     }
 }

@@ -33,10 +33,11 @@ public class PtUserGrantAuthenticationConvert implements AuthenticationConverter
         Map<String, Object> additionalParameters = new HashMap<>();
         formParameters.forEach((key, value) -> {
             if (!key.equals(OAuth2ParameterNames.GRANT_TYPE) && !key.equals(OAuth2ParameterNames.CLIENT_ID)
-                    && !key.equals(OAuth2ParameterNames.CODE) && !key.equals(OAuth2ParameterNames.REDIRECT_URI)) {
+                    && !key.equals(OAuth2ParameterNames.CODE) && !key.equals(OAuth2ParameterNames.REDIRECT_URI)
+                    && !key.equals(OAuth2ParameterNames.USERNAME) && !key.equals(OAuth2ParameterNames.PASSWORD)) {
                 additionalParameters.put(key, (value.size() == 1) ? value.get(0) : value.toArray(new String[0]));
             }
         });
-        return new PtUserGrantAuthenticationToken(PtOauth2Constant.GRANT_TYPE_PT_USER,authentication,additionalParameters);
+        return new PtUserGrantAuthenticationToken(PtOauth2Constant.GRANT_TYPE_PT_USER, authentication, additionalParameters, username, password);
     }
 }

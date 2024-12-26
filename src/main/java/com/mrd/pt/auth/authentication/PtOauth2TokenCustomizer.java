@@ -1,5 +1,6 @@
 package com.mrd.pt.auth.authentication;
 
+import com.mrd.pt.auth.entity.AuthPtUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -25,11 +26,14 @@ public class PtOauth2TokenCustomizer implements OAuth2TokenCustomizer<OAuth2Toke
         if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
             Authentication principal = context.getPrincipal();
             Collection<? extends GrantedAuthority> authorities = principal.getAuthorities();
-            Object principal1 = principal.getPrincipal();
-            context.getClaims().claims((claims) -> {
-                claims.put("claim-1", "value-1");
-                claims.put("claim-2", "value-2");
-            });
+
+            if(principal instanceof PtUserAuthenticationToken ptUserAuthenticationToken){
+                context.getClaims().claims((claims) -> {
+                    claims.put("userId", ptUserAuthenticationToken.getAuthPtUser().getId());
+                    claims.put("userName", ptUserAuthenticationToken.getAuthPtUser().getUsername());
+                });
+            }
+
         }
     }
 }
