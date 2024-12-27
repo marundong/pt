@@ -13,13 +13,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "user_name"),
         @UniqueConstraint(columnNames = "email")
 })
 @Data
-public class PtUser {
+public class PtUser implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

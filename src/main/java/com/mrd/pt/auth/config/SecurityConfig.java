@@ -60,7 +60,7 @@ public class SecurityConfig {
                                                                       JpaOAuth2AuthorizationConsentService jpaOAuth2AuthorizationConsentService,
                                                                       JpaUserDetailsService userDetailsService,
                                                                       PtOauth2ErrorAuthenticationFailureHandler ptOauth2ErrorAuthenticationFailureHandler,
-//                                                                      PtOauth2AuthenticationSuccessHandler ptOauth2AuthenticationSuccessHandler,
+                                                                      PtOauth2AuthenticationSuccessHandler ptOauth2AuthenticationSuccessHandler,
                                                                       OAuth2TokenGenerator<?> tokenGenerator) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
@@ -71,7 +71,7 @@ public class SecurityConfig {
                     tokenEndpointConfigurer.errorResponseHandler(ptOauth2ErrorAuthenticationFailureHandler);
                     tokenEndpointConfigurer.accessTokenRequestConverter(new PtUserGrantAuthenticationConvert());
                     tokenEndpointConfigurer.authenticationProvider(new PtUserGrantAuthenticationProvider(userDetailsService, passwordEncoder(), jpaOAuth2AuthorizationService, tokenGenerator));
-//                    tokenEndpointConfigurer.accessTokenResponseHandler(ptOauth2AuthenticationSuccessHandler);
+                    tokenEndpointConfigurer.accessTokenResponseHandler(ptOauth2AuthenticationSuccessHandler);
                 })
                 .oidc(Customizer.withDefaults());
         return http
@@ -88,7 +88,9 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, RedisTemplate<String,Object> redisTemplate)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
+                                                          RedisTemplate<String,Object> redisTemplate,
+                                                          JpaUserDetailsService userDetailsService)
             throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -101,7 +103,7 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 }).oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer
 //                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer.introspectionUri("http://127.0.0.1:8080/oauth2/introspect").introspectionClientCredentials("1", "1"))
-                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer.introspector(new PtOpaqueTokenIntrospector(redisTemplate,"http://127.0.0.1:8080/oauth2/introspect","1","1")))
+                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer.introspector(new PtOpaqueTokenIntrospector(userDetailsService,redisTemplate,"http://127.0.0.1:8080/oauth2/introspect","1","1")))
                         .authenticationEntryPoint(new PtAuthenticationEntryPoint())
                         .accessDeniedHandler(new PtAccessDeniedHandler())
                 )

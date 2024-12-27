@@ -2,7 +2,12 @@ package com.mrd.pt.auth.authentication;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import com.mrd.pt.auth.entity.AuthPtUser;
+import com.mrd.pt.auth.repository.UserRepository;
+import com.mrd.pt.auth.service.JpaUserDetailsService;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
@@ -20,6 +25,8 @@ public class PtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
     private final OpaqueTokenIntrospector introspector;
 
     private final RedisTemplate<String,Object> redisTemplate;
+
+    private final JpaUserDetailsService userDetailsService;
 
     private String clientId;
 
@@ -40,24 +47,27 @@ public class PtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
             return (OAuth2AuthenticatedPrincipal)o;
         }
         OAuth2AuthenticatedPrincipal introspect = introspector.introspect(token);
+        Object userId = introspect.getAttribute("userId");
+        long id = Long.parseLong(userId.toString());
+        AuthPtUser authPtUser = (AuthPtUser) userDetailsService.loadUserById(id);
         Object exp = introspect.getAttribute("exp");
-        if(exp !=null && exp instanceof Instant expIstance){
+        if(exp instanceof Instant expIstance){
             LocalDateTime localDateTime = DateUtil.toLocalDateTime(expIstance);
             long between = LocalDateTimeUtil.between(LocalDateTime.now(), localDateTime, ChronoUnit.SECONDS);
             if(between>60){
-                redisTemplate.opsForValue().set(tokenKey(token),introspect,between-60,TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set(tokenKey(token),authPtUser,between-60,TimeUnit.SECONDS);
             }
         }
-        return introspect;
+        return authPtUser;
     }
 
-    public PtOpaqueTokenIntrospector(RedisTemplate<String,Object> redisTemplate, String uri,String clientId,String clientSecret) {
+    public PtOpaqueTokenIntrospector(JpaUserDetailsService userDetailsService,RedisTemplate<String,Object> redisTemplate, String uri,String clientId,String clientSecret) {
+        this.userDetailsService = userDetailsService;
         this.redisTemplate = redisTemplate;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.uri = uri;
         this.introspector = new NimbusOpaqueTokenIntrospector(uri,clientId,clientSecret);
-
     }
 
     private String tokenKey(String token){

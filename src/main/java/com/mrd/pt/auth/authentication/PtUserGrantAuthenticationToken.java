@@ -1,5 +1,6 @@
 package com.mrd.pt.auth.authentication;
 
+import com.mrd.pt.auth.entity.AuthPtUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationGrantAuthenticationToken;
@@ -9,6 +10,8 @@ import java.util.Map;
 public class PtUserGrantAuthenticationToken extends OAuth2AuthorizationGrantAuthenticationToken {
     private final String username;
     private final String password;
+
+    private AuthPtUser authPtUser;
     /**
      * Sub-class constructor.
      *
@@ -21,6 +24,8 @@ public class PtUserGrantAuthenticationToken extends OAuth2AuthorizationGrantAuth
         this.username =username;
         this.password =password;
     }
+
+
 
     public String getUsername() {
         return username;

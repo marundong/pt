@@ -8,11 +8,13 @@ import lombok.Data;
 @Data
 public abstract class PtUserMixin {
 	@JsonProperty
-	private String id;
+	private Long id;
 	@JsonProperty
 	private String username;
 	@JsonProperty
 	private String email;
 	@JsonProperty
 	private String password;
+
+
 }

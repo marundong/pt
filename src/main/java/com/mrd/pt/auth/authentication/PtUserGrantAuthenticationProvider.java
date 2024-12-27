@@ -1,7 +1,6 @@
 package com.mrd.pt.auth.authentication;
 
 import com.mrd.pt.auth.code.AuthErrorResultCode;
-import com.mrd.pt.auth.entity.AuthPtUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,11 +11,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.OAuth2Token;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -29,10 +28,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
 import java.security.Principal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
@@ -49,7 +44,6 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         PtUserGrantAuthenticationToken ptUserGrantAuthenticationToken = (PtUserGrantAuthenticationToken) authentication;
-        Map<String, Object> additionalParameters = ptUserGrantAuthenticationToken.getAdditionalParameters();
         AuthorizationGrantType grantType = ptUserGrantAuthenticationToken.getGrantType();
         String username = ptUserGrantAuthenticationToken.getUsername();
         String password = ptUserGrantAuthenticationToken.getPassword();
@@ -63,17 +57,16 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new OAuth2AuthenticationException(AuthErrorResultCode.AUTH_FAILED_INVALID_USERNAME_PASSWORD.getOauth2ErrorCode());
         }
-        PtUserAuthenticationToken ptUserAuthenticationToken = new PtUserAuthenticationToken((AuthPtUser) userDetails,clientAuthenticationToken);
+        UsernamePasswordAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(userDetails, clientAuthenticationToken, userDetails.getAuthorities());
         DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
                 .registeredClient(registeredClient)
-                .principal(ptUserAuthenticationToken)
+                .principal(authenticated)
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
                 .authorizedScopes(registeredClient.getScopes())
                 .authorizationGrantType(grantType)
                 .authorizationGrant(ptUserGrantAuthenticationToken);
-        UsernamePasswordAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(userDetails, clientAuthenticationToken, userDetails.getAuthorities());
         OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient);
-        authorizationBuilder.principalName(registeredClient.getClientName())
+        authorizationBuilder.principalName(authenticated.getName())
                 .authorizationGrantType(grantType)
                 .attribute(Principal.class.getName(), authenticated)
                 .authorizationGrantType(grantType)
@@ -92,7 +85,15 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
 
         OAuth2AccessToken accessToken = PtOAuth2AuthenticationProviderUtils.accessToken(authorizationBuilder,
                 generatedAccessToken, tokenContext);
-
+        if (generatedAccessToken instanceof ClaimAccessor) {
+            authorizationBuilder.id(accessToken.getTokenValue())
+                    .token(accessToken,
+                            (metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME,
+                                    ((ClaimAccessor) generatedAccessToken).getClaims()))
+                    // 0.4.0 新增的方法
+                    .authorizedScopes(registeredClient.getScopes())
+                    .attribute(Principal.class.getName(), authenticated);
+        }
         // ----- Refresh token -----
         OAuth2RefreshToken refreshToken = null;
         // Do not issue refresh token to public client
@@ -117,8 +118,7 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
         OAuth2Authorization oAuth2Authorization = authorizationBuilder.build();
 
         this.authorizationService.save(oAuth2Authorization);
-
-        return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientAuthenticationToken, accessToken, refreshToken, additionalParameters);
+        return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientAuthenticationToken, accessToken, refreshToken, ptUserGrantAuthenticationToken.getAdditionalParameters());
     }
 
     @Override

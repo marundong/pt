@@ -24,4 +24,12 @@ public class JpaUserDetailsService implements UserDetailsService {
         return user;
 
     }
+    public UserDetails loadUserById(Long id) throws UsernameNotFoundException {
+        AuthPtUser user = userRepository
+                .findById(id)
+                .map(AuthPtUser::new)
+                .orElseThrow(() -> new UsernameNotFoundException("User id not found: " + id));
+        return user;
+
+    }
 }

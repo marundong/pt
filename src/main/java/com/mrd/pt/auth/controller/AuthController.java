@@ -1,6 +1,8 @@
 package com.mrd.pt.auth.controller;
 
+import com.google.common.collect.Lists;
 import com.mrd.pt.auth.authentication.PtOauth2Constant;
+import com.mrd.pt.common.response.JsonResponse;
 import jakarta.annotation.Resource;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,6 +29,12 @@ public class AuthController {
 
     @Resource
     private RegisteredClientRepository registeredClientRepository;
+
+
+    @GetMapping("codes")
+    public JsonResponse<List> codes(){
+        return JsonResponse.success(Lists.newArrayList("AC_100100", "AC_100110", "AC_100120", "AC_100010"));
+    }
 
 
     @GetMapping("initClient")
