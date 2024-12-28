@@ -86,7 +86,7 @@ public class PtUserGrantAuthenticationProvider implements AuthenticationProvider
         OAuth2AccessToken accessToken = PtOAuth2AuthenticationProviderUtils.accessToken(authorizationBuilder,
                 generatedAccessToken, tokenContext);
         if (generatedAccessToken instanceof ClaimAccessor) {
-            authorizationBuilder.id(accessToken.getTokenValue())
+            authorizationBuilder
                     .token(accessToken,
                             (metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME,
                                     ((ClaimAccessor) generatedAccessToken).getClaims()))

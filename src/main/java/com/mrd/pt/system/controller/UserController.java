@@ -30,7 +30,8 @@ public class UserController {
         if (principal instanceof AuthPtUser authPtUser) {
             userInfoResult.setUserId(authPtUser.getId().toString());
             userInfoResult.setUsername(authPtUser.getUsername());
-            userInfoResult.setHomePath("/workspace");
+            userInfoResult.setRealName(authPtUser.getUsername());
+//            userInfoResult.setHomePath("/workspace");
             userInfoResult.setRoles(Lists.newArrayList("super"));
         }
         return JsonResponse.success(userInfoResult);

@@ -48,6 +48,9 @@ public class PtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
         }
         OAuth2AuthenticatedPrincipal introspect = introspector.introspect(token);
         Object userId = introspect.getAttribute("userId");
+        if(userId == null){
+            return introspect;
+        }
         long id = Long.parseLong(userId.toString());
         AuthPtUser authPtUser = (AuthPtUser) userDetailsService.loadUserById(id);
         Object exp = introspect.getAttribute("exp");

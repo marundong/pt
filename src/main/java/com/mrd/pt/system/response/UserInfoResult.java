@@ -10,6 +10,9 @@ import java.util.List;
 @Data
 public class UserInfoResult {
 
+    private Long id;
+
+
     /**
      * 头像
      */
