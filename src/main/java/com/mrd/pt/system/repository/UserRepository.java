@@ -1,6 +1,6 @@
-package com.mrd.pt.auth.repository;
+package com.mrd.pt.system.repository;
 
-import com.mrd.pt.auth.entity.PtUser;
+import com.mrd.pt.system.entity.PtUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

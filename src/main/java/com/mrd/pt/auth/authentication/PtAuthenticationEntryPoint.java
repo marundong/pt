@@ -37,7 +37,8 @@ public class PtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         // todo 异常定义
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         JsonResponse jsonResponse = new JsonResponse(AuthErrorResultCode.AUTH_FAILED_COMMON);

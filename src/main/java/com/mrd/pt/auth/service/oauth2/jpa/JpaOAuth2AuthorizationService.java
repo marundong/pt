@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mrd.pt.auth.entity.AuthPtUser;
 import com.mrd.pt.auth.entity.AuthPtUserMixin;
-import com.mrd.pt.auth.entity.PtUser;
+import com.mrd.pt.system.entity.PtUser;
 import com.mrd.pt.auth.entity.PtUserMixin;
 import com.mrd.pt.auth.entity.oauth2.jpa.Authorization;
 import com.mrd.pt.auth.repository.oauth2.jpa.AuthorizationRepository;
@@ -120,9 +120,9 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 			result = Optional.empty();
 		}
 
-		oAuth2Authorization = result.map(this::toObject).orElse(null);
-		redisOAuth2AuthorizationService.save(oAuth2Authorization);
-		return oAuth2Authorization;
+		Optional<OAuth2Authorization> oAuth2AuthorizationOptional = result.map(this::toObject);
+		oAuth2AuthorizationOptional.ifPresent(redisOAuth2AuthorizationService::save);
+		return oAuth2AuthorizationOptional.orElse(null);
 	}
 
 	private OAuth2Authorization toObject(Authorization entity) {

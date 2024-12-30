@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -54,8 +55,9 @@ public class JpaRegisteredClientRepository implements RegisteredClientRepository
 		Assert.hasText(id, "id cannot be empty");
 		RegisteredClient registeredClient = redisRegisteredClientRepository.findById(id);
 		if (registeredClient == null) {
-			registeredClient = this.clientRepository.findById(id).map(this::toObject).orElse(null);
-			save2redis(registeredClient);
+			Optional<RegisteredClient> registeredClientOptional = this.clientRepository.findById(id).map(this::toObject);
+			registeredClientOptional.ifPresent(this::save2redis);
+			registeredClient = registeredClientOptional.orElse(null);
 		}
 		return registeredClient;
 	}

@@ -1,6 +1,7 @@
 package com.mrd.pt.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mrd.pt.system.entity.PtUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;

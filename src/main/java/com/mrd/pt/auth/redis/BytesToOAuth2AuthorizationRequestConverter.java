@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.mrd.pt.auth.entity.AuthPtUser;
 import com.mrd.pt.auth.entity.AuthPtUserMixin;
-import com.mrd.pt.auth.entity.PtUser;
+import com.mrd.pt.system.entity.PtUser;
 import com.mrd.pt.auth.entity.PtUserMixin;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;

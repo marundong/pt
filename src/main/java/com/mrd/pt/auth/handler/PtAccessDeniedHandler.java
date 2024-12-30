@@ -1,4 +1,4 @@
-package com.mrd.pt.auth.authentication;
+package com.mrd.pt.auth.handler;
 
 import cn.hutool.json.JSONUtil;
 import com.mrd.pt.auth.code.AuthErrorResultCode;

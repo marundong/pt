@@ -1,6 +1,6 @@
 package com.mrd.pt.common.context;
 
-import com.mrd.pt.auth.entity.PtUser;
+import com.mrd.pt.system.entity.PtUser;
 
 /**
  * @author marundong

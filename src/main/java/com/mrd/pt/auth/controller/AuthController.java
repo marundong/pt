@@ -56,7 +56,7 @@ public class AuthController {
                         .scope("message.write")
                         .tokenSettings(TokenSettings.builder()
                                 .accessTokenTimeToLive(Duration.ofHours(2))
-                                .refreshTokenTimeToLive(Duration.ofHours(24))
+                                .refreshTokenTimeToLive(Duration.ofDays(30))
                                 // 配置accessToken类型
                                 .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
                                 .build())

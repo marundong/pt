@@ -8,5 +8,5 @@ import com.mrd.pt.auth.request.UserRegistryRequest;
 public interface RegistryService {
 
 
-    void userInfoResult(UserRegistryRequest userRegistryRequest);
+    void registryUser(UserRegistryRequest userRegistryRequest);
 }

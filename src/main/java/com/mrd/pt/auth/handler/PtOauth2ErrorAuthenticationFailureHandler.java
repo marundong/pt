@@ -54,6 +54,14 @@ public class PtOauth2ErrorAuthenticationFailureHandler implements Authentication
                 jsonResponse.setMsg(errorCode);
             }
             response.getWriter().print(objectMapper.writeValueAsString(jsonResponse));
+        } else {
+            response.setStatus(HttpStatus.OK.value());
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            AuthErrorResultCode authErrorResultCodeByOauth2ErrorCode = AuthErrorResultCode.AUTH_FAILED_COMMON;
+            JsonResponse jsonResponse = new JsonResponse(authErrorResultCodeByOauth2ErrorCode);
+            jsonResponse.setMsg(exception.getMessage());
+            response.getWriter().print(objectMapper.writeValueAsString(jsonResponse));
         }
 
     }

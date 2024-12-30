@@ -1,7 +1,7 @@
 package com.mrd.pt.auth.service;
 
 import com.mrd.pt.auth.entity.AuthPtUser;
-import com.mrd.pt.auth.repository.UserRepository;
+import com.mrd.pt.system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -21,7 +21,7 @@ public class RegistryController {
 
     @PostMapping("user")
     public JsonResponse registryUser(@RequestBody UserRegistryRequest userRegistryRequest){
-        registryService.userInfoResult(userRegistryRequest);
+        registryService.registryUser(userRegistryRequest);
         return JsonResponse.success();
     }
 }
