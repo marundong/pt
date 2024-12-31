@@ -137,6 +137,13 @@
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.4.0-jre</version>
+            <!-- or, for Android: -->
+<!--            <version>33.4.0-android</version>-->
+        </dependency>
     </dependencies>
 
     <build>
