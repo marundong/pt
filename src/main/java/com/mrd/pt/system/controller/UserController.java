@@ -1,20 +1,23 @@
 package com.mrd.pt.system.controller;
 
+import com.google.common.collect.Lists;
 import com.mrd.pt.auth.entity.AuthPtUser;
 import com.mrd.pt.common.response.JsonResponse;
 import com.mrd.pt.system.entity.PtUser;
 import com.mrd.pt.system.response.UserInfoResult;
 import com.mrd.pt.system.service.UserService;
-import graphql.com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author marundong
@@ -42,10 +45,13 @@ public class UserController {
         return JsonResponse.success(userInfoResult);
     }
 
-    @GetMapping("list")
-    public JsonResponse<List<PtUser>> list(){
+    @PostMapping("list")
+    public JsonResponse<Map<String,Object>> list(){
         List<PtUser> list = userService.list();
-        return JsonResponse.success(list);
+        Map<String,Object> map = new HashMap<>();
+        map.put("list",list);
+        map.put("total",1);
+        return JsonResponse.success(map);
     }
 
 }
